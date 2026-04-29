@@ -1,5 +1,10 @@
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 /**
  * GameController contains the main method and wires the Model and View together.
@@ -10,11 +15,15 @@ public class GameController {
     private GameModel model;
     private GameView view;
     private JFrame frame;
+    private Timer gameLoop;
+    
+    private boolean leftPressed = false;
+    private boolean rightPressed = false;
     
     public GameController() {
         // Initialize the Model and View
         model = new GameModel();
-        view = new GameView();
+        view = new GameView(model);
         
         // Set up the JFrame to host the GameView
         frame = new JFrame("Space Invaders");
@@ -23,13 +32,61 @@ public class GameController {
         frame.pack();
         frame.setLocationRelativeTo(null); // Center the window
         frame.setResizable(false);
+        
+        setupInput();
+        
+        // Setup game loop targeting ~60 FPS (16ms per tick)
+        gameLoop = new Timer(16, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Apply continuous movement based on key state
+                if (leftPressed) {
+                    model.movePlayerLeft();
+                }
+                if (rightPressed) {
+                    model.movePlayerRight();
+                }
+                
+                // Advance the game logic by one tick
+                model.update();
+                
+                // Repaint the screen with the new state
+                view.repaint();
+            }
+        });
+    }
+    
+    private void setupInput() {
+        frame.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                    leftPressed = true;
+                } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                    rightPressed = true;
+                } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    model.firePlayerBullet();
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                    leftPressed = false;
+                } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                    rightPressed = false;
+                }
+            }
+        });
+        
+        frame.setFocusable(true);
+        frame.requestFocusInWindow();
     }
     
     public void start() {
         // Make the window visible and start the game loop
         frame.setVisible(true);
-        
-        // TODO: Implement a game loop (e.g., using javax.swing.Timer or a dedicated thread)
+        gameLoop.start();
     }
     
     public static void main(String[] args) {
