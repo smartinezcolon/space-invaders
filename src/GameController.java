@@ -52,6 +52,10 @@ public class GameController {
                 
                 // Repaint the screen with the new state
                 view.repaint();
+                
+                if (model.isGameOver()) {
+                    gameLoop.stop();
+                }
             }
         });
     }
