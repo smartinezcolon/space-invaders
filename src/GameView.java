@@ -47,11 +47,41 @@ public class GameView extends JPanel {
         g.setColor(Color.GREEN);
         g.fillRect(model.getPlayerX(), model.getPlayerY(), GameModel.PLAYER_WIDTH, GameModel.PLAYER_HEIGHT);
         
-        // Draw Player Bullet (Yellow Rectangle)
-        GameModel.Bullet pBullet = model.getPlayerBullet();
-        if (pBullet != null) {
+        // Draw Player Bullets (Yellow Rectangles)
+        List<GameModel.Bullet> pBullets = model.getPlayerBullets();
+        if (pBullets != null) {
             g.setColor(Color.YELLOW);
-            g.fillRect((int) pBullet.x, (int) pBullet.y, GameModel.BULLET_WIDTH, GameModel.BULLET_HEIGHT);
+            for (GameModel.Bullet b : pBullets) {
+                g.fillRect((int) b.x, (int) b.y, GameModel.BULLET_WIDTH, GameModel.BULLET_HEIGHT);
+            }
+        }
+        
+        // Draw PowerUps
+        List<GameModel.PowerUp> powerUps = model.getPowerUps();
+        if (powerUps != null) {
+            for (GameModel.PowerUp p : powerUps) {
+                switch(p.type) {
+                    case SPEED: g.setColor(Color.CYAN); break;
+                    case RAPID_FIRE: g.setColor(Color.YELLOW); break;
+                    case MULTI_SHOT: g.setColor(Color.PINK); break;
+                    case LIFE: g.setColor(Color.GREEN); break;
+                }
+                g.fillRect((int) p.x, (int) p.y, GameModel.POWERUP_SIZE, GameModel.POWERUP_SIZE);
+                
+                g.setColor(Color.BLACK);
+                g.setFont(new Font("Arial", Font.BOLD, 12));
+                String letter = "";
+                switch(p.type) {
+                    case SPEED: letter = "S"; break;
+                    case RAPID_FIRE: letter = "R"; break;
+                    case MULTI_SHOT: letter = "M"; break;
+                    case LIFE: letter = "L"; break;
+                }
+                FontMetrics fm = g.getFontMetrics();
+                int textX = (int) p.x + (GameModel.POWERUP_SIZE - fm.stringWidth(letter)) / 2;
+                int textY = (int) p.y + ((GameModel.POWERUP_SIZE - fm.getHeight()) / 2) + fm.getAscent();
+                g.drawString(letter, textX, textY);
+            }
         }
         
         // Draw Aliens (Red Rectangles)

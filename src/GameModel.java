@@ -13,7 +13,7 @@ public class GameModel {
     
     public static final int PLAYER_WIDTH = 50;
     public static final int PLAYER_HEIGHT = 20;
-    public static final int PLAYER_SPEED = 5;
+    public static final int BASE_PLAYER_SPEED = 5;
     
     public static final int ALIEN_WIDTH = 40;
     public static final int ALIEN_HEIGHT = 30;
@@ -28,7 +28,10 @@ public class GameModel {
     
     public static final int BULLET_WIDTH = 5;
     public static final int BULLET_HEIGHT = 15;
-    public static final int BULLET_SPEED = 10;
+    public static final int BASE_BULLET_SPEED = 10;
+    
+    public static final int POWERUP_SIZE = 15;
+    public static final double POWERUP_SPEED = 2.5;
 
     private boolean gameStarted;
     private int playerX;
@@ -39,6 +42,11 @@ public class GameModel {
     private double currentAlienSpeedX;
     private double currentAlienFireRate;
     
+    private int playerSpeed;
+    private int playerBulletSpeed;
+    private int multiShotLevel;
+    private int fireCooldown;
+    
     private double ufoX;
     private double ufoY;
     private boolean ufoActive;
@@ -47,10 +55,23 @@ public class GameModel {
     private Alien[][] aliens;
     private double alienDirectionX = 1.0; // 1 for right, -1 for left
     
-    private Bullet playerBullet;
+    private List<Bullet> playerBullets;
     private List<Bullet> alienBullets;
+    private List<PowerUp> powerUps;
     
     private Random random;
+    
+    public enum PowerUpType { SPEED, RAPID_FIRE, MULTI_SHOT, LIFE }
+    
+    public static class PowerUp {
+        public double x, y;
+        public PowerUpType type;
+        public PowerUp(double x, double y, PowerUpType type) {
+            this.x = x;
+            this.y = y;
+            this.type = type;
+        }
+    }
 
     public static class Alien {
         public double x, y;
@@ -84,8 +105,13 @@ public class GameModel {
         playerX = GAME_WIDTH / 2 - PLAYER_WIDTH / 2;
         score = 0;
         lives = 3;
-        playerBullet = null;
+        playerSpeed = BASE_PLAYER_SPEED;
+        playerBulletSpeed = BASE_BULLET_SPEED;
+        multiShotLevel = 1;
+        fireCooldown = 0;
+        playerBullets = new ArrayList<>();
         alienBullets = new ArrayList<>();
+        powerUps = new ArrayList<>();
         alienDirectionX = 1.0;
         ufoActive = false;
         
@@ -96,8 +122,9 @@ public class GameModel {
     public void nextLevel() {
         level++;
         levelCompleted = false;
-        playerBullet = null;
+        playerBullets.clear();
         alienBullets.clear();
+        powerUps.clear();
         alienDirectionX = 1.0;
         ufoActive = false;
         
@@ -134,28 +161,40 @@ public class GameModel {
     public boolean isUfoActive() { return ufoActive; }
     public double getUfoX() { return ufoX; }
     public double getUfoY() { return ufoY; }
+    
+    public List<Bullet> getPlayerBullets() { return playerBullets; }
+    public List<PowerUp> getPowerUps() { return powerUps; }
 
     // --- Actions ---
 
     public void movePlayerLeft() {
-        playerX -= PLAYER_SPEED;
+        playerX -= playerSpeed;
         if (playerX < 0) {
             playerX = 0;
         }
     }
 
     public void movePlayerRight() {
-        playerX += PLAYER_SPEED;
+        playerX += playerSpeed;
         if (playerX > GAME_WIDTH - PLAYER_WIDTH) {
             playerX = GAME_WIDTH - PLAYER_WIDTH;
         }
     }
 
     public void firePlayerBullet() {
-        if (playerBullet == null) {
-            // Spawn bullet just above the player
+        if (fireCooldown <= 0) {
             int playerY = GAME_HEIGHT - PLAYER_HEIGHT - 10;
-            playerBullet = new Bullet(playerX + PLAYER_WIDTH / 2.0 - BULLET_WIDTH / 2.0, playerY - BULLET_HEIGHT, false);
+            if (multiShotLevel == 1) {
+                playerBullets.add(new Bullet(playerX + PLAYER_WIDTH / 2.0 - BULLET_WIDTH / 2.0, playerY - BULLET_HEIGHT, false));
+            } else if (multiShotLevel == 2) {
+                playerBullets.add(new Bullet(playerX, playerY - BULLET_HEIGHT, false));
+                playerBullets.add(new Bullet(playerX + PLAYER_WIDTH - BULLET_WIDTH, playerY - BULLET_HEIGHT, false));
+            } else {
+                playerBullets.add(new Bullet(playerX, playerY - BULLET_HEIGHT, false));
+                playerBullets.add(new Bullet(playerX + PLAYER_WIDTH / 2.0 - BULLET_WIDTH / 2.0, playerY - BULLET_HEIGHT, false));
+                playerBullets.add(new Bullet(playerX + PLAYER_WIDTH - BULLET_WIDTH, playerY - BULLET_HEIGHT, false));
+            }
+            fireCooldown = 15; // 15 ticks cooldown (~250ms)
         }
     }
 
@@ -166,9 +205,12 @@ public class GameModel {
         if (lives <= 0) return; // Game over state
         if (levelCompleted) return; // Waiting to go to next level
 
+        if (fireCooldown > 0) fireCooldown--;
+
         updateBullets();
         updateAliens();
         updateUFO();
+        updatePowerUps();
         checkCollisions();
     }
     
@@ -193,19 +235,32 @@ public class GameModel {
         }
     }
 
+    private void updatePowerUps() {
+        for (int i = 0; i < powerUps.size(); i++) {
+            PowerUp p = powerUps.get(i);
+            p.y += POWERUP_SPEED;
+            if (p.y > GAME_HEIGHT) {
+                powerUps.remove(i);
+                i--;
+            }
+        }
+    }
+
     private void updateBullets() {
-        // Player bullet
-        if (playerBullet != null) {
-            playerBullet.y -= BULLET_SPEED;
-            if (playerBullet.y + BULLET_HEIGHT < 0) {
-                playerBullet = null; // off screen
+        // Player bullets
+        for (int i = 0; i < playerBullets.size(); i++) {
+            Bullet b = playerBullets.get(i);
+            b.y -= playerBulletSpeed;
+            if (b.y + BULLET_HEIGHT < 0) {
+                playerBullets.remove(i);
+                i--;
             }
         }
         
         // Alien bullets
         for (int i = 0; i < alienBullets.size(); i++) {
             Bullet b = alienBullets.get(i);
-            b.y += BULLET_SPEED / 2.0; // Alien bullets move a bit slower
+            b.y += BASE_BULLET_SPEED / 2.0; // Alien bullets move a bit slower
             if (b.y > GAME_HEIGHT) {
                 alienBullets.remove(i);
                 i--;
@@ -255,35 +310,60 @@ public class GameModel {
     }
 
     private void checkCollisions() {
-        // Player bullet hitting alien
-        if (playerBullet != null) {
+        // Player bullets hitting alien
+        for (int i = 0; i < playerBullets.size(); i++) {
+            Bullet pb = playerBullets.get(i);
             boolean hit = false;
             for (int r = 0; r < ALIEN_ROWS && !hit; r++) {
                 for (int c = 0; c < ALIEN_COLS && !hit; c++) {
                     Alien a = aliens[r][c];
-                    if (a.alive && rectIntersect(playerBullet.x, playerBullet.y, BULLET_WIDTH, BULLET_HEIGHT,
+                    if (a.alive && rectIntersect(pb.x, pb.y, BULLET_WIDTH, BULLET_HEIGHT,
                                                  a.x, a.y, ALIEN_WIDTH, ALIEN_HEIGHT)) {
                         a.alive = false;
-                        playerBullet = null;
+                        playerBullets.remove(i);
+                        i--;
                         score += 10;
                         hit = true;
+                        
+                        // Spawn powerup? (10% chance)
+                        if (random.nextDouble() < 0.10) {
+                            PowerUpType type = PowerUpType.values()[random.nextInt(PowerUpType.values().length)];
+                            powerUps.add(new PowerUp(a.x + ALIEN_WIDTH / 2.0 - POWERUP_SIZE / 2.0, a.y + ALIEN_HEIGHT, type));
+                        }
                     }
                 }
             }
         }
         
-        // Player bullet hitting UFO
-        if (playerBullet != null && ufoActive) {
-            if (rectIntersect(playerBullet.x, playerBullet.y, BULLET_WIDTH, BULLET_HEIGHT,
+        // Player bullets hitting UFO
+        for (int i = 0; i < playerBullets.size(); i++) {
+            Bullet pb = playerBullets.get(i);
+            if (ufoActive && rectIntersect(pb.x, pb.y, BULLET_WIDTH, BULLET_HEIGHT,
                               ufoX, ufoY, UFO_WIDTH, UFO_HEIGHT)) {
                 ufoActive = false;
-                playerBullet = null;
+                playerBullets.remove(i);
+                i--;
                 score += (random.nextInt(3) + 1) * 50; // Bonus points
             }
         }
         
+        // Player catching powerups
+        int playerY = GAME_HEIGHT - PLAYER_HEIGHT - 10;
+        for (int i = 0; i < powerUps.size(); i++) {
+            PowerUp p = powerUps.get(i);
+            if (rectIntersect(p.x, p.y, POWERUP_SIZE, POWERUP_SIZE, playerX, playerY, PLAYER_WIDTH, PLAYER_HEIGHT)) {
+                switch(p.type) {
+                    case SPEED: playerSpeed = Math.min(playerSpeed + 2, 10); break;
+                    case RAPID_FIRE: playerBulletSpeed = Math.min(playerBulletSpeed + 5, 20); break;
+                    case MULTI_SHOT: multiShotLevel = Math.min(multiShotLevel + 1, 3); break;
+                    case LIFE: lives++; break;
+                }
+                powerUps.remove(i);
+                i--;
+            }
+        }
+        
         // Alien bullets hitting player
-        int playerY = GAME_HEIGHT - PLAYER_HEIGHT - 10; // Same as where player is rendered
         for (int i = 0; i < alienBullets.size(); i++) {
             Bullet b = alienBullets.get(i);
             if (rectIntersect(b.x, b.y, BULLET_WIDTH, BULLET_HEIGHT,
@@ -323,7 +403,6 @@ public class GameModel {
     public int getScore() { return score; }
     public int getLives() { return lives; }
     public Alien[][] getAliens() { return aliens; }
-    public Bullet getPlayerBullet() { return playerBullet; }
     public List<Bullet> getAlienBullets() { return alienBullets; }
     public boolean isGameOver() { return lives <= 0; }
 }

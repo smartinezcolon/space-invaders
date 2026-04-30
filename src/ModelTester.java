@@ -38,13 +38,13 @@ public class ModelTester {
         GameModel model = new GameModel();
         model.startGame();
         model.firePlayerBullet();
-        GameModel.Bullet bullet1 = model.getPlayerBullet();
+        int bulletCount1 = model.getPlayerBullets().size();
         
-        // Attempt to fire again
+        // Attempt to fire again immediately
         model.firePlayerBullet();
-        GameModel.Bullet bullet2 = model.getPlayerBullet();
+        int bulletCount2 = model.getPlayerBullets().size();
         
-        assertTest("Firing while bullet is already in flight does nothing", bullet1 != null && bullet1 == bullet2);
+        assertTest("Firing while on cooldown does nothing", bulletCount1 == 1 && bulletCount2 == 1);
     }
 
     private static void testBulletRemoval() {
@@ -55,7 +55,7 @@ public class ModelTester {
         for (int i = 0; i < 200; i++) model.movePlayerLeft();
         
         model.firePlayerBullet();
-        boolean bulletExisted = (model.getPlayerBullet() != null);
+        boolean bulletExisted = (model.getPlayerBullets().size() > 0);
         
         // Advance time so bullet goes off the top
         for (int i = 0; i < 100; i++) {
@@ -63,7 +63,7 @@ public class ModelTester {
         }
         
         // Score should be 0 because we didn't hit any aliens
-        assertTest("Bullet reaching top is removed", bulletExisted && model.getPlayerBullet() == null && model.getScore() == 0);
+        assertTest("Bullet reaching top is removed", bulletExisted && model.getPlayerBullets().isEmpty() && model.getScore() == 0);
     }
 
     private static void testAlienDestruction() {
