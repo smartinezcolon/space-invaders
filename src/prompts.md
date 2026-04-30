@@ -40,4 +40,13 @@ This added a UFO that crosses the top of the screen for bonus points.
 
 Prompt 10: I would like to add powerups that randomly drop down from destroyed aliens, that can give me faster movement, faster bullets, shoot more bullets at once, or more lives. 
 
+This created various types of powerups that randomly drop from destroyed aliens. 
 
+These are the types of powerups it created:
+[S] Speed (Cyan): Increases movement speed.
+[R] Rapid Fire (Yellow): Increases the speed of your bullets.
+[M] Multi-Shot (Pink): Upgrades your cannon to shoot double (and then triple) bullets side-by-side.
+[L] Life (Green): Grants an extra life!
+
+Prompt 11: 
+I wanted to fix the aliens when reach the bottom, I want it to be gameover, but the aliens just pass through the player.

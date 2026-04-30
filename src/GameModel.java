@@ -292,6 +292,9 @@ public class GameModel {
                     Alien a = aliens[r][c];
                     if (a.alive) {
                         a.y += ALIEN_DROP;
+                        if (a.y + ALIEN_HEIGHT >= GAME_HEIGHT - PLAYER_HEIGHT - 10) {
+                            lives = 0; // Aliens reached the bottom, game over
+                        }
                     }
                 }
             }
