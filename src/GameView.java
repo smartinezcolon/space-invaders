@@ -79,6 +79,16 @@ public class GameView extends JPanel {
             g.drawString(gameOverText, 
                          (GameModel.GAME_WIDTH - textWidth) / 2, 
                          (GameModel.GAME_HEIGHT + textHeight) / 2);
+                         
+            // Draw Restart Instruction
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Arial", Font.PLAIN, 20));
+            String restartText = "Press 'R' to Restart";
+            FontMetrics fmRestart = g.getFontMetrics();
+            int restartTextWidth = fmRestart.stringWidth(restartText);
+            g.drawString(restartText, 
+                         (GameModel.GAME_WIDTH - restartTextWidth) / 2, 
+                         (GameModel.GAME_HEIGHT + textHeight) / 2 + 40);
         }
     }
 }

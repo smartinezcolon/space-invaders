@@ -17,3 +17,7 @@ Create a separate file called ModelTester.java with a main method. It should cre
 Prompt 6:
 Add a resetGame() method to GameModel that resets the game
 
+Adding this reset game method added the feature of ressetting the game by clicking R on the keyboard. However, I do not like how you do not know that is a feature because it does not say anywhere in the game to select R to reset the game.
+
+My follow up prompt to fix this: 
+There is nothing stating to select R to restart the game at Gameover screen. I would like thay feature otherwise the player is not aware of selecting R to reset
