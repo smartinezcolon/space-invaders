@@ -40,6 +40,9 @@ public class GameView extends JPanel {
             String startText = "Press Space to Start";
             FontMetrics fmStart = g.getFontMetrics();
             g.drawString(startText, (GameModel.GAME_WIDTH - fmStart.stringWidth(startText)) / 2, GameModel.GAME_HEIGHT / 2 + 20);
+            
+            String hsText = "High Score: " + model.getHighScore();
+            g.drawString(hsText, (GameModel.GAME_WIDTH - fmStart.stringWidth(hsText)) / 2, GameModel.GAME_HEIGHT / 2 + 60);
             return;
         }
         
@@ -113,10 +116,11 @@ public class GameView extends JPanel {
             }
         }
         
-        // Draw HUD (Score, Level, and Lives)
+        // Draw HUD (Score, High Score, Level, and Lives)
         g.setColor(Color.WHITE);
         g.setFont(new Font("Arial", Font.BOLD, 20));
         g.drawString("Score: " + model.getScore(), 20, 30);
+        g.drawString("High Score: " + model.getHighScore(), 200, 30);
         g.drawString("Level: " + model.getLevel(), GameModel.GAME_WIDTH / 2 - 40, 30);
         g.drawString("Lives: " + model.getLives(), GameModel.GAME_WIDTH - 120, 30);
         

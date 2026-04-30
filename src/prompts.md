@@ -50,3 +50,14 @@ These are the types of powerups it created:
 
 Prompt 11: 
 I wanted to fix the aliens when reach the bottom, I want it to be gameover, but the aliens just pass through the player.
+
+This added a gameover screen when the aliens reach the bottom. 
+
+From this I made another prompt stating: when the aliens pass me where it triggers the gameover screen, I want it to say the aliens have invaded!
+
+This changed the gameover screen to say "THE ALIENS HAVE INVADED!" instead of "GAME OVER" when the aliens reach the bottom.
+
+Prompt 12:
+Add a highscore feature that saves the highscore.
+
+This implemented a highscore feature that saves the highscore. 

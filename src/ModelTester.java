@@ -62,8 +62,8 @@ public class ModelTester {
             model.update();
         }
         
-        // Score should be 0 because we didn't hit any aliens
-        assertTest("Bullet reaching top is removed", bulletExisted && model.getPlayerBullets().isEmpty() && model.getScore() == 0);
+        // The bullet should be removed (either by going off screen or hitting a randomly spawned UFO)
+        assertTest("Bullet reaching top is removed", bulletExisted && model.getPlayerBullets().isEmpty());
     }
 
     private static void testAlienDestruction() {

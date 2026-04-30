@@ -1,6 +1,11 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
+import java.util.Scanner;
 
 /**
  * GameModel handles the logic and state of the Space Invaders game.
@@ -36,6 +41,8 @@ public class GameModel {
     private boolean gameStarted;
     private int playerX;
     private int score;
+    private int highScore;
+    private boolean hasSavedHighScore;
     private int lives;
     private int level = 1;
     private boolean levelCompleted;
@@ -97,7 +104,26 @@ public class GameModel {
 
     public GameModel() {
         random = new Random();
+        loadHighScore();
         resetGame();
+    }
+
+    private void loadHighScore() {
+        try (Scanner scanner = new Scanner(new File("highscore.txt"))) {
+            if (scanner.hasNextInt()) {
+                highScore = scanner.nextInt();
+            }
+        } catch (IOException e) {
+            highScore = 0;
+        }
+    }
+
+    private void saveHighScore() {
+        try (PrintWriter out = new PrintWriter(new FileWriter("highscore.txt"))) {
+            out.println(highScore);
+        } catch (IOException e) {
+            System.err.println("Failed to save highscore");
+        }
     }
 
     public void resetGame() {
@@ -117,6 +143,7 @@ public class GameModel {
         alienDirectionX = 1.0;
         ufoActive = false;
         aliensInvaded = false;
+        hasSavedHighScore = false;
         
         updateDifficulty();
         initAliens();
@@ -162,6 +189,7 @@ public class GameModel {
     public boolean isLevelCompleted() { return levelCompleted; }
     public boolean hasAliensInvaded() { return aliensInvaded; }
     public int getLevel() { return level; }
+    public int getHighScore() { return highScore; }
     
     public boolean isUfoActive() { return ufoActive; }
     public double getUfoX() { return ufoX; }
@@ -207,7 +235,16 @@ public class GameModel {
 
     public void update() {
         if (!gameStarted) return;
-        if (lives <= 0) return; // Game over state
+        if (lives <= 0) {
+            if (!hasSavedHighScore) {
+                if (score > highScore) {
+                    highScore = score;
+                }
+                saveHighScore();
+                hasSavedHighScore = true;
+            }
+            return; // Game over state
+        }
         if (levelCompleted) return; // Waiting to go to next level
 
         if (fireCooldown > 0) fireCooldown--;
@@ -332,6 +369,7 @@ public class GameModel {
                         playerBullets.remove(i);
                         i--;
                         score += 10;
+                        if (score > highScore) highScore = score;
                         hit = true;
                         
                         // Spawn powerup? (10% chance)
@@ -353,6 +391,7 @@ public class GameModel {
                 playerBullets.remove(i);
                 i--;
                 score += (random.nextInt(3) + 1) * 50; // Bonus points
+                if (score > highScore) highScore = score;
             }
         }
         
