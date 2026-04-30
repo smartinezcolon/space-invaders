@@ -19,8 +19,12 @@ public class GameModel {
     public static final int ALIEN_HEIGHT = 30;
     public static final int ALIEN_ROWS = 5;
     public static final int ALIEN_COLS = 11;
-    public static final double ALIEN_SPEED_X = 2.0;
+    public static final double BASE_ALIEN_SPEED_X = 2.0;
     public static final double ALIEN_DROP = 20.0;
+    
+    public static final int UFO_WIDTH = 60;
+    public static final int UFO_HEIGHT = 20;
+    public static final double UFO_SPEED = 3.0;
     
     public static final int BULLET_WIDTH = 5;
     public static final int BULLET_HEIGHT = 15;
@@ -30,6 +34,15 @@ public class GameModel {
     private int playerX;
     private int score;
     private int lives;
+    private int level = 1;
+    private boolean levelCompleted;
+    private double currentAlienSpeedX;
+    private double currentAlienFireRate;
+    
+    private double ufoX;
+    private double ufoY;
+    private boolean ufoActive;
+    private int ufoDirection;
     
     private Alien[][] aliens;
     private double alienDirectionX = 1.0; // 1 for right, -1 for left
@@ -66,14 +79,35 @@ public class GameModel {
 
     public void resetGame() {
         gameStarted = false;
+        level = 1;
+        levelCompleted = false;
         playerX = GAME_WIDTH / 2 - PLAYER_WIDTH / 2;
         score = 0;
         lives = 3;
         playerBullet = null;
         alienBullets = new ArrayList<>();
         alienDirectionX = 1.0;
+        ufoActive = false;
         
+        updateDifficulty();
         initAliens();
+    }
+    
+    public void nextLevel() {
+        level++;
+        levelCompleted = false;
+        playerBullet = null;
+        alienBullets.clear();
+        alienDirectionX = 1.0;
+        ufoActive = false;
+        
+        updateDifficulty();
+        initAliens();
+    }
+
+    private void updateDifficulty() {
+        currentAlienSpeedX = BASE_ALIEN_SPEED_X + (level - 1) * 0.5;
+        currentAlienFireRate = 0.0005 + (level - 1) * 0.0002;
     }
 
     private void initAliens() {
@@ -94,6 +128,12 @@ public class GameModel {
 
     public void startGame() { gameStarted = true; }
     public boolean isGameStarted() { return gameStarted; }
+    public boolean isLevelCompleted() { return levelCompleted; }
+    public int getLevel() { return level; }
+    
+    public boolean isUfoActive() { return ufoActive; }
+    public double getUfoX() { return ufoX; }
+    public double getUfoY() { return ufoY; }
 
     // --- Actions ---
 
@@ -124,10 +164,33 @@ public class GameModel {
     public void update() {
         if (!gameStarted) return;
         if (lives <= 0) return; // Game over state
+        if (levelCompleted) return; // Waiting to go to next level
 
         updateBullets();
         updateAliens();
+        updateUFO();
         checkCollisions();
+    }
+    
+    private void updateUFO() {
+        if (!ufoActive) {
+            if (random.nextDouble() < 0.002) { // 0.2% chance per tick to spawn
+                ufoActive = true;
+                ufoY = 20;
+                if (random.nextBoolean()) {
+                    ufoX = -UFO_WIDTH;
+                    ufoDirection = 1;
+                } else {
+                    ufoX = GAME_WIDTH;
+                    ufoDirection = -1;
+                }
+            }
+        } else {
+            ufoX += UFO_SPEED * ufoDirection;
+            if (ufoX > GAME_WIDTH + UFO_WIDTH || ufoX < -UFO_WIDTH - UFO_WIDTH) {
+                ufoActive = false;
+            }
+        }
     }
 
     private void updateBullets() {
@@ -158,7 +221,7 @@ public class GameModel {
             for (int c = 0; c < ALIEN_COLS; c++) {
                 Alien a = aliens[r][c];
                 if (a.alive) {
-                    a.x += ALIEN_SPEED_X * alienDirectionX;
+                    a.x += currentAlienSpeedX * alienDirectionX;
                     if (a.x <= 0 || a.x + ALIEN_WIDTH >= GAME_WIDTH) {
                         hitEdge = true;
                     }
@@ -184,7 +247,7 @@ public class GameModel {
             for (int c = 0; c < ALIEN_COLS; c++) {
                 Alien a = aliens[r][c];
                 // Only alive aliens can fire, and give a low probability per frame
-                if (a.alive && random.nextDouble() < 0.0005) {
+                if (a.alive && random.nextDouble() < currentAlienFireRate) {
                     alienBullets.add(new Bullet(a.x + ALIEN_WIDTH / 2.0 - BULLET_WIDTH / 2.0, a.y + ALIEN_HEIGHT, true));
                 }
             }
@@ -209,6 +272,16 @@ public class GameModel {
             }
         }
         
+        // Player bullet hitting UFO
+        if (playerBullet != null && ufoActive) {
+            if (rectIntersect(playerBullet.x, playerBullet.y, BULLET_WIDTH, BULLET_HEIGHT,
+                              ufoX, ufoY, UFO_WIDTH, UFO_HEIGHT)) {
+                ufoActive = false;
+                playerBullet = null;
+                score += (random.nextInt(3) + 1) * 50; // Bonus points
+            }
+        }
+        
         // Alien bullets hitting player
         int playerY = GAME_HEIGHT - PLAYER_HEIGHT - 10; // Same as where player is rendered
         for (int i = 0; i < alienBullets.size(); i++) {
@@ -219,6 +292,23 @@ public class GameModel {
                 alienBullets.remove(i);
                 i--;
             }
+        }
+        
+        checkLevelCompletion();
+    }
+
+    private void checkLevelCompletion() {
+        boolean allDead = true;
+        for (int r = 0; r < ALIEN_ROWS; r++) {
+            for (int c = 0; c < ALIEN_COLS; c++) {
+                if (aliens[r][c].alive) {
+                    allDead = false;
+                    break;
+                }
+            }
+        }
+        if (allDead) {
+            levelCompleted = true;
         }
     }
 

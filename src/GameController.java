@@ -72,16 +72,22 @@ public class GameController {
                         }
                     }
                 } else {
-                    if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                        leftPressed = true;
-                    } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                        rightPressed = true;
-                    } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                        model.firePlayerBullet();
-                    } else if (e.getKeyCode() == KeyEvent.VK_R) {
+                    if (e.getKeyCode() == KeyEvent.VK_R) {
                         model.resetGame();
                         if (!gameLoop.isRunning()) {
                             gameLoop.start();
+                        }
+                    } else if (model.isLevelCompleted()) {
+                        if (e.getKeyCode() == KeyEvent.VK_N) {
+                            model.nextLevel();
+                        }
+                    } else {
+                        if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                            leftPressed = true;
+                        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                            rightPressed = true;
+                        } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                            model.firePlayerBullet();
                         }
                     }
                 }

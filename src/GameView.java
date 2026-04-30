@@ -68,6 +68,12 @@ public class GameView extends JPanel {
             }
         }
         
+        // Draw UFO
+        if (model.isUfoActive()) {
+            g.setColor(Color.MAGENTA);
+            g.fillRect((int) model.getUfoX(), (int) model.getUfoY(), GameModel.UFO_WIDTH, GameModel.UFO_HEIGHT);
+        }
+        
         // Draw Alien Bullets (Orange Rectangles)
         g.setColor(Color.ORANGE);
         List<GameModel.Bullet> aBullets = model.getAlienBullets();
@@ -77,11 +83,35 @@ public class GameView extends JPanel {
             }
         }
         
-        // Draw HUD (Score and Lives)
+        // Draw HUD (Score, Level, and Lives)
         g.setColor(Color.WHITE);
         g.setFont(new Font("Arial", Font.BOLD, 20));
         g.drawString("Score: " + model.getScore(), 20, 30);
+        g.drawString("Level: " + model.getLevel(), GameModel.GAME_WIDTH / 2 - 40, 30);
         g.drawString("Lives: " + model.getLives(), GameModel.GAME_WIDTH - 120, 30);
+        
+        // Draw Level Completed Message
+        if (model.isLevelCompleted()) {
+            g.setColor(Color.GREEN);
+            g.setFont(new Font("Arial", Font.BOLD, 50));
+            String levelText = "LEVEL " + model.getLevel() + " COMPLETED";
+            FontMetrics fm = g.getFontMetrics();
+            int textWidth = fm.stringWidth(levelText);
+            int textHeight = fm.getAscent();
+            g.drawString(levelText, 
+                         (GameModel.GAME_WIDTH - textWidth) / 2, 
+                         (GameModel.GAME_HEIGHT + textHeight) / 2 - 30);
+                         
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Arial", Font.PLAIN, 20));
+            String nextText = "Press 'N' for Next Level";
+            FontMetrics fmNext = g.getFontMetrics();
+            int nextWidth = fmNext.stringWidth(nextText);
+            g.drawString(nextText, 
+                         (GameModel.GAME_WIDTH - nextWidth) / 2, 
+                         (GameModel.GAME_HEIGHT + textHeight) / 2 + 20);
+            return;
+        }
         
         // Draw Game Over Message
         if (model.isGameOver()) {

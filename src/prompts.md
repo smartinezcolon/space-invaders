@@ -26,3 +26,18 @@ This added the feature to Press 'R' to restart the game at the game over screen.
 
 Prompt 7:
 Add a main menu before starting the game that displays "Press Space to Start"
+
+This added a main menu before starting the game. Looks a little too basic but it will do for now. I prefer having at least a main menu, then the game starting right away when you load it up.
+
+Prompt 8:
+I noticed when I eliminate all the aliens, nothing happens afterwards. I would like to add a completed, and also would like to implement a next level.
+
+This added a completed screen after eliminating all the aliens, and it also added a next level. 
+
+Prompt 9: Add a UFO that crosses the top of the screen for bonus points
+
+This added a UFO that crosses the top of the screen for bonus points.
+
+Prompt 10: I would like to add powerups that randomly drop down from destroyed aliens, that can give me faster movement, faster bullets, shoot more bullets at once, or more lives. 
+
+
