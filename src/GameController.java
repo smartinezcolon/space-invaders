@@ -70,6 +70,11 @@ public class GameController {
                     rightPressed = true;
                 } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                     model.firePlayerBullet();
+                } else if (e.getKeyCode() == KeyEvent.VK_R) {
+                    model.resetGame();
+                    if (!gameLoop.isRunning()) {
+                        gameLoop.start();
+                    }
                 }
             }
 
