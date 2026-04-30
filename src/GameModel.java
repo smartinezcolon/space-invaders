@@ -26,6 +26,7 @@ public class GameModel {
     public static final int BULLET_HEIGHT = 15;
     public static final int BULLET_SPEED = 10;
 
+    private boolean gameStarted;
     private int playerX;
     private int score;
     private int lives;
@@ -64,6 +65,7 @@ public class GameModel {
     }
 
     public void resetGame() {
+        gameStarted = false;
         playerX = GAME_WIDTH / 2 - PLAYER_WIDTH / 2;
         score = 0;
         lives = 3;
@@ -89,6 +91,9 @@ public class GameModel {
             }
         }
     }
+
+    public void startGame() { gameStarted = true; }
+    public boolean isGameStarted() { return gameStarted; }
 
     // --- Actions ---
 
@@ -117,6 +122,7 @@ public class GameModel {
     // --- Game Loop Update ---
 
     public void update() {
+        if (!gameStarted) return;
         if (lives <= 0) return; // Game over state
 
         updateBullets();

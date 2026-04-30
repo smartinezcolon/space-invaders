@@ -21,3 +21,8 @@ Adding this reset game method added the feature of ressetting the game by clicki
 
 My follow up prompt to fix this: 
 There is nothing stating to select R to restart the game at Gameover screen. I would like thay feature otherwise the player is not aware of selecting R to reset
+
+This added the feature to Press 'R' to restart the game at the game over screen. 
+
+Prompt 7:
+Add a main menu before starting the game that displays "Press Space to Start"

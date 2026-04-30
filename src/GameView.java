@@ -28,6 +28,21 @@ public class GameView extends JPanel {
         
         if (model == null) return;
         
+        if (!model.isGameStarted()) {
+            // Draw Main Menu
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Arial", Font.BOLD, 40));
+            String titleText = "SPACE INVADERS";
+            FontMetrics fmTitle = g.getFontMetrics();
+            g.drawString(titleText, (GameModel.GAME_WIDTH - fmTitle.stringWidth(titleText)) / 2, GameModel.GAME_HEIGHT / 2 - 50);
+            
+            g.setFont(new Font("Arial", Font.PLAIN, 20));
+            String startText = "Press Space to Start";
+            FontMetrics fmStart = g.getFontMetrics();
+            g.drawString(startText, (GameModel.GAME_WIDTH - fmStart.stringWidth(startText)) / 2, GameModel.GAME_HEIGHT / 2 + 20);
+            return;
+        }
+        
         // Draw Player (Green Rectangle)
         g.setColor(Color.GREEN);
         g.fillRect(model.getPlayerX(), model.getPlayerY(), GameModel.PLAYER_WIDTH, GameModel.PLAYER_HEIGHT);

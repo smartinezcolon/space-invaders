@@ -20,6 +20,7 @@ public class ModelTester {
 
     private static void testPlayerBounds() {
         GameModel model = new GameModel();
+        model.startGame();
         
         // Move left far beyond 0
         for (int i = 0; i < 200; i++) model.movePlayerLeft();
@@ -35,6 +36,7 @@ public class ModelTester {
 
     private static void testBulletRateLimiting() {
         GameModel model = new GameModel();
+        model.startGame();
         model.firePlayerBullet();
         GameModel.Bullet bullet1 = model.getPlayerBullet();
         
@@ -47,6 +49,7 @@ public class ModelTester {
 
     private static void testBulletRemoval() {
         GameModel model = new GameModel();
+        model.startGame();
         
         // Move player to the far left edge to avoid hitting any aliens
         for (int i = 0; i < 200; i++) model.movePlayerLeft();
@@ -65,6 +68,7 @@ public class ModelTester {
 
     private static void testAlienDestruction() {
         GameModel model = new GameModel();
+        model.startGame();
         int initialScore = model.getScore();
         
         // Player starts at x=375. Move left 55 times to x=100.
@@ -87,6 +91,7 @@ public class ModelTester {
 
     private static void testGameOver() {
         GameModel model = new GameModel();
+        model.startGame();
         
         // Simulate getting hit 3 times
         for (int i = 0; i < 3; i++) {

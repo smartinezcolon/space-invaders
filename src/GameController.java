@@ -64,16 +64,25 @@ public class GameController {
         frame.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                    leftPressed = true;
-                } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                    rightPressed = true;
-                } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    model.firePlayerBullet();
-                } else if (e.getKeyCode() == KeyEvent.VK_R) {
-                    model.resetGame();
-                    if (!gameLoop.isRunning()) {
-                        gameLoop.start();
+                if (!model.isGameStarted()) {
+                    if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                        model.startGame();
+                        if (!gameLoop.isRunning()) {
+                            gameLoop.start();
+                        }
+                    }
+                } else {
+                    if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                        leftPressed = true;
+                    } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                        rightPressed = true;
+                    } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                        model.firePlayerBullet();
+                    } else if (e.getKeyCode() == KeyEvent.VK_R) {
+                        model.resetGame();
+                        if (!gameLoop.isRunning()) {
+                            gameLoop.start();
+                        }
                     }
                 }
             }
