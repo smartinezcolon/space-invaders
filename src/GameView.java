@@ -146,8 +146,8 @@ public class GameView extends JPanel {
         // Draw Game Over Message
         if (model.isGameOver()) {
             g.setColor(Color.RED);
-            g.setFont(new Font("Arial", Font.BOLD, 60));
-            String gameOverText = "GAME OVER";
+            g.setFont(new Font("Arial", Font.BOLD, 45));
+            String gameOverText = model.hasAliensInvaded() ? "THE ALIENS HAVE INVADED!" : "GAME OVER";
             FontMetrics fm = g.getFontMetrics();
             int textWidth = fm.stringWidth(gameOverText);
             int textHeight = fm.getAscent();

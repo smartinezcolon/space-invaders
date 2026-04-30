@@ -52,6 +52,8 @@ public class GameModel {
     private boolean ufoActive;
     private int ufoDirection;
     
+    private boolean aliensInvaded;
+    
     private Alien[][] aliens;
     private double alienDirectionX = 1.0; // 1 for right, -1 for left
     
@@ -114,6 +116,7 @@ public class GameModel {
         powerUps = new ArrayList<>();
         alienDirectionX = 1.0;
         ufoActive = false;
+        aliensInvaded = false;
         
         updateDifficulty();
         initAliens();
@@ -127,6 +130,7 @@ public class GameModel {
         powerUps.clear();
         alienDirectionX = 1.0;
         ufoActive = false;
+        aliensInvaded = false;
         
         updateDifficulty();
         initAliens();
@@ -156,6 +160,7 @@ public class GameModel {
     public void startGame() { gameStarted = true; }
     public boolean isGameStarted() { return gameStarted; }
     public boolean isLevelCompleted() { return levelCompleted; }
+    public boolean hasAliensInvaded() { return aliensInvaded; }
     public int getLevel() { return level; }
     
     public boolean isUfoActive() { return ufoActive; }
@@ -293,6 +298,7 @@ public class GameModel {
                     if (a.alive) {
                         a.y += ALIEN_DROP;
                         if (a.y + ALIEN_HEIGHT >= GAME_HEIGHT - PLAYER_HEIGHT - 10) {
+                            aliensInvaded = true;
                             lives = 0; // Aliens reached the bottom, game over
                         }
                     }
